@@ -10,6 +10,9 @@ CREATE OR ALTER PROCEDURE silver.load_silver AS
 BEGIN
 		DECLARE @start_time DATETIME, @end_time DATETIME, @batch_start_time DATETIME, @batch_end_time DATETIME;
 			BEGIN TRY
+			PRINT '=============================================';
+			PRINT '		LOAD DATA TO SILVER LAYER';
+			PRINT '=============================================';
 			PRINT '--------------------------------';
 			PRINT '		LOAD CRM TABLES';
 			PRINT '--------------------------------';
@@ -54,9 +57,10 @@ BEGIN
 			) t
 			WHERE flaging = 1; -- Keep only the most recent entry per customer
 
-			PRINT '>> Data Uploaded Succesfully to: silver.crm_cust_info ';
+			PRINT '>> Data Uploaded Successfully to: silver.crm_cust_info ';
 			SET @end_time = GETDATE();
 			PRINT 'LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time)AS NVARCHAR) + 'Seconds';
+			PRINT '>> ----------------------'
 
 			-- Load CRM Product Info
 			SET @start_time = GETDATE();
@@ -88,7 +92,7 @@ BEGIN
 					ELSE 'n/a'
 				END,
 				CAST(prd_start_dt AS DATE),
-				-- Set end date to day before next start date (if exists)
+				-- Set end date to the day before the next start date (if exists)
 				CAST(LEAD(prd_start_dt) OVER (PARTITION BY prd_key ORDER BY prd_start_dt) - 1 AS DATE)
 			FROM (
 				SELECT *,
@@ -97,9 +101,10 @@ BEGIN
 				WHERE prd_id IS NOT NULL
 			) t
 			WHERE flaging = 1;
-			PRINT '>> Data Uploaded Succesfully to: silver.crm_prd_info ';
+			PRINT '>> Data Uploaded Successfully to: silver.crm_prd_info ';
 			SET @end_time = GETDATE();
 			PRINT 'LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time)AS NVARCHAR) + 'Seconds';
+			PRINT '>> ----------------------'
    
 			-- Load CRM Sales Details
 			SET @start_time = GETDATE();
@@ -143,9 +148,10 @@ BEGIN
 					 ELSE sls_price
 				END
 			FROM bronze.crm_sales_details;
-			PRINT '>> Data Uploaded Succesfully to: silver.crm_sales_details ';
+			PRINT '>> Data Uploaded Successfully to: silver.crm_sales_details ';
 			SET @end_time = GETDATE();
 			PRINT 'LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time)AS NVARCHAR) + 'Seconds';
+			PRINT '>> ----------------------'
 	
 	
 			PRINT '--------------------------------';
@@ -173,9 +179,10 @@ BEGIN
 					ELSE 'n/a'
 				END
 			FROM bronze.erp_cust_az12;
-			PRINT '>> Data Uploaded Succesfully to: silver.erp_cust_az12 ';
+			PRINT '>> Data Uploaded Successfully to: silver.erp_cust_az12 ';
 			SET @end_time = GETDATE();
 			PRINT 'LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time)AS NVARCHAR) + 'Seconds';
+			PRINT '>> ----------------------'
 
 			-- Load ERP Location Data
 			SET @start_time = GETDATE();
@@ -196,9 +203,10 @@ BEGIN
 					ELSE TRIM(cntry)
 				END
 			FROM bronze.erp_loc_a101
-			PRINT '>> Data Uploaded Succesfully to: silver.erp_loc_a101';
+			PRINT '>> Data Uploaded Successfully to: silver.erp_loc_a101';
 			SET @end_time = GETDATE();
 			PRINT 'LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time)AS NVARCHAR) + 'Seconds';
+			PRINT '>> ----------------------'
 
 			-- Load ERP Product Categories (no transformation needed)
 			SET @start_time = GETDATE();
@@ -217,26 +225,25 @@ BEGIN
 				subcat,
 				maintenence
 			FROM bronze.erp_px_cat_g1v2;
-			PRINT '>> Data Uploaded Succesfully to: silver.erp_px_cat_g1v2 ';
+			PRINT '>> Data Uploaded Successfully to: silver.erp_px_cat_g1v2 ';
 			SET @end_time = GETDATE();
 			PRINT 'LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time)AS NVARCHAR) + 'Seconds';
+			PRINT '>> ----------------------'
 
-			PRINT '>> Complete Data Uploaded Succesfully';
+			PRINT '>> Complete Data Uploaded Successfully';
 			SET @batch_end_time = GETDATE();
 			PRINT 'BATCH LOAD DURATION: ' + CAST(DATEDIFF(second, @batch_start_time, @batch_end_time)AS NVARCHAR) + 'Seconds';
+			PRINT '>> ----------------------'
 		END TRY
 		BEGIN CATCH
-				-- Logs error details for debugging
-				PRINT '==========================================';
-				PRINT 'ERROR OCCURRED DURING LOADING SILVER LAYER';
-				PRINT 'Error Message ' + ERROR_MESSAGE();
-				PRINT 'Error Number ' + CAST(ERROR_NUMBER() AS NVARCHAR);
-				PRINT 'Error State ' + CAST(ERROR_STATE() AS NVARCHAR);
-				PRINT 'Error Line ' + CAST(ERROR_LINE() AS NVARCHAR);
-				PRINT 'Error Procedure ' + ERROR_PROCEDURE();
-				PRINT '==========================================';
+			-- Logs error details for debugging
+			PRINT '==========================================';
+			PRINT 'ERROR OCCURRED DURING LOADING SILVER LAYER';
+			PRINT 'Error Message ' + ERROR_MESSAGE();
+			PRINT 'Error Number ' + CAST(ERROR_NUMBER() AS NVARCHAR);
+			PRINT 'Error State ' + CAST(ERROR_STATE() AS NVARCHAR);
+			PRINT 'Error Line ' + CAST(ERROR_LINE() AS NVARCHAR);
+			PRINT 'Error Procedure ' + ERROR_PROCEDURE();
+			PRINT '==========================================';
 		END CATCH
 END
-
-
-EXEC silver.load_silver
