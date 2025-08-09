@@ -1,8 +1,13 @@
 /*
     PURPOSE:
     This ETL script transforms and loads raw CRM and ERP data from the bronze staging layer 
-    into the silver layer. It applies data cleaning, enrichment, and normalization rules to ensure 
-    consistency, deduplication, and integrity before loading. 
+    into the silver layer. It applies 
+	data cleaning, 
+	enrichment, 
+	and normalization rules to ensure 
+    consistency, 
+	deduplication, 
+	and integrity before loading. 
 */
 
 -- Procedure to load cleaned and standardized data from the bronze staging layer into the silver cleansed layer.
