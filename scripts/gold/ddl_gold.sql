@@ -18,25 +18,22 @@ from silver.crm_cust_info ci
 left join silver.erp_cust_az12 ca
 on ci.cst_key = ca.cid
 left join silver.erp_loc_a101 el
-on ci.cst_key = el.cid
+on ci.cst_key = el.cid;
 
-select prd_id, count(*)
-from 
-(select 
-	pi.prd_id,
-	pi.cat_id,
-	pi.prd_key,
-	pi.prd_nm,
-	pi.prd_cost,
-	pi.prd_line,
-	pi.prd_start_dt,
-	pi.prd_end_dt,
-	pc.cat,
-	pc.subcat,
-	pc.maintenence
-from silver.crm_prd_info pi
+GO
+
+select 
+	pn.prd_id AS product_id,
+	pn.prd_key AS product_number,
+	pn.prd_nm AS product_name,
+	pn.cat_id AS category_id,
+	pc.cat AS category,
+	pc.subcat AS subcategory,
+	pc.maintenence,
+	pn.prd_cost AS cost,
+	pn.prd_line AS product_line,
+	pn.prd_start_dt AS start_date
+from silver.crm_prd_info pn
 left join silver.erp_px_cat_g1v2 pc
-on pi.cat_id = pc.ID
-)t 
-group by prd_id
-having count(*)>0
+on pn.cat_id = pc.ID
+where pn.prd_end_dt is null -- filter out historical dat
