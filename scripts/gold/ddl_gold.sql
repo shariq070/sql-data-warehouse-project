@@ -38,4 +38,4 @@ select
 from silver.crm_prd_info pn
 left join silver.erp_px_cat_g1v2 pc
 on pn.cat_id = pc.ID
-where pn.prd_end_dt is null -- filter out historical dat;
+where pn.prd_end_dt is null -- filter out historical dat
